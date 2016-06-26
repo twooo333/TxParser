@@ -89,6 +89,7 @@ def output_result(driver):
 	#logout to prevent next time login fail
     logout_link = driver.find_element_by_link_text('會員登出')
     logout_link.click()
+
     driver.quit() # Quit the driver and close every associated window.
     driver = None
 
