@@ -8,6 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait # available since 2.4.0
 from selenium.webdriver.support import expected_conditions as EC # available since 2.26.0
 from selenium.common.exceptions import TimeoutException
 
+from io import open
+import time
+import sys
+
 def read_login_info(driver, info_file = None):
     try:
         if info_file:
@@ -28,11 +32,18 @@ def read_login_info(driver, info_file = None):
     usercode.send_keys(info[1])
     password.send_keys(info[2])    
     f.close()    
-    return True
 
 def auto_login():
     # Create a new instance of the Firefox driver
-    driver = webdriver.PhantomJS()
+    if len(sys.argv) != 2:
+        print 'Wrong argument number. One Argument please and 1 for PhantomJs, 2 for Firefox 43'
+    else:
+        if sys.argv[1] == '1':
+            driver = webdriver.PhantomJS()
+        elif sys.argv[1] == '2':
+            driver = webdriver.Firefox()
+        else:
+            print "Wrong Argument input 1 for PhantomJs, 2 for Firefox 43"     
 
     # go to the google home page
     driver.get("https://mma.sinopac.com/MemberPortal/Member/NextWebLogin.aspx")
@@ -67,10 +78,17 @@ def output_result(driver):
     weekly_link = driver.find_element_by_link_text('最近一週')
     weekly_link.click()
 
+	#wait for the result
+    time.sleep(2)
     source_html = driver.page_source
-    f = open('login.log', 'w', encoding='UTF-8')
-    f.write(source_html)
-    f.close()
+
+    with open("./login.log",'w', encoding='utf8') as file:
+        file.write(source_html)
+    file.close()
+
+	#logout to prevent next time login fail
+    logout_link = driver.find_element_by_link_text('會員登出')
+    logout_link.click()
     driver.quit() # Quit the driver and close every associated window.
     driver = None
 
